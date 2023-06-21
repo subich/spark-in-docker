@@ -1,0 +1,42 @@
+networks:
+  spark-net:
+
+volumes:
+  spark-data:
+
+services:
+  spark-master:
+    build:
+      context: ./spark-base
+      args:
+        SPARK_VERSION: 3.4.0
+        HADOOP_VERSION: 3
+    entrypoint: python
+    environment:
+      SPARK: 'yes'
+    expose:
+      - 8080
+    networks:
+      - spark-net
+    ports:
+      - 8080
+      - 7077
+    volumes:
+      - spark-data:/tmp/spark-data
+
+  spark-worker:
+    build:
+      context: ./spark-base
+      args:
+        SPARK_VERSION: 3.4.0
+        HADOOP_VERSION: 3
+    depends_on:
+      - spark-master
+    environment:
+      SPARK_MASTER: 'spark://spark-master:7077'
+    networks:
+      - spark-net
+    ports:
+      - 8081
+    volumes:
+      - spark-data:/tmp/spark-data
