@@ -1,57 +1,46 @@
 networks:
-  spark-net:
+  default:
 
 volumes:
-  spark-data:
+  spark-logs:
 
 services:
   spark-master:
-    image: spark-master
-    container_name: spark-master
+    build:
+      context: ./image
+    image: spark-image
+    entrypoint: ["/entrypoint.sh", "master"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    volumes:
+      - spark-logs:/opt/spark/spark-events
     ports:
-      - "8080:8080"
       - "7077:7077"
+      - "8080:8080"
     environment:
-      - INIT_DAEMON_STEP=setup_spark
-    networks:
-      - spark-net
-    volumes:
-      - spark-data:/tmp/spark-data
-
-  spark-worker-1:
-    image: spark-worker
-    container_name: spark-worker-1
-    depends_on:
-      - spark-master
-    ports:
-      - "8081:8081"
-    environment:
-      - "SPARK_MASTER=spark://spark-master:7077"
-    networks:
-      - spark-net
-    volumes:
-      - spark-data:/tmp/spark-data
-
-  spark-worker-2:
-    image: spark-worker
-    container_name: spark-worker-2
-    depends_on:
-      - spark-master
-    ports:
-      - "8082:8081"
-    environment:
-      - "SPARK_MASTER=spark://spark-master:7077"
-    networks:
-      - spark-net
-    volumes:
-      - spark-data:/tmp/spark-data
+      - SPARK_NO_DAEMONIZE=true
 
   spark-history-server:
-    image: spark-history-server
-    container_name: spark-history-server
+    image: spark-image
+    entrypoint: ["/entrypoint.sh", "history"]
     depends_on:
       - spark-master
-    ports:
-      - "18081:18081"
     volumes:
-      - /tmp/spark-events-local:/tmp/spark-events
+      - spark-logs:/opt/spark/spark-events
+    ports:
+      - "18080:18080"
+    environment:
+      - SPARK_NO_DAEMONIZE=true
+
+  spark-worker:
+    image: spark-image
+    entrypoint: ["/entrypoint.sh", "worker"]
+    depends_on:
+      - spark-master
+    volumes:
+      - spark-logs:/opt/spark/spark-events
+    environment:
+      - SPARK_NO_DAEMONIZE=true
