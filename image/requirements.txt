@@ -1,4 +1,3 @@
 pandas
-pyarrow
 numpy
 pyspark
