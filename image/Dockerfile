@@ -1,7 +1,19 @@
 # Stage 1
 FROM alpine:latest as spark-base
 
-RUN apk add --no-cache curl bash openjdk17-jre python3 py-pip nss libc6-compat coreutils procps build-base python3-dev libffi-dev \
+RUN apk add --no-cache \
+    curl \
+    bash \
+    openjdk17-jre \
+    python3 \
+    py-pip \
+    nss \
+    libc6-compat \
+    coreutils \
+    procps \
+    build-base \
+    python3-dev \
+    libffi-dev \
   && java --version \
   && python --version
 
