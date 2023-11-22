@@ -17,6 +17,8 @@ services:
       retries: 3
     volumes:
       - spark-logs:/opt/spark/spark-events
+      - ./apps:/opt/spark/apps
+      - ./data:/opt/spark/data
     ports:
       - "7077:7077"
       - "8080:8080"
@@ -42,5 +44,7 @@ services:
       - spark-master
     volumes:
       - spark-logs:/opt/spark/spark-events
+      - ./apps:/opt/spark/apps
+      - ./data:/opt/spark/data
     environment:
       - SPARK_NO_DAEMONIZE=true
